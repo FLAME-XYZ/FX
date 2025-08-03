@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FX Dashboard Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --primary-dark: #3a0ca3;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4cc9f0;
+            --danger-color: #f72585;
+            --warning-color: #f8961e;
+            --info-color: #4895ef;
+            --border-radius: 10px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --sidebar-width: 280px;
+            --navbar-height: 70px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+            transition: var(--transition);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        body.dark-mode {
+            background-color: #121212;
+            color: #f5f5f5;
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 350px;
+            width: 100%;
+        }
+
+        .toast {
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            animation: slideIn 0.3s, fadeOut 0.5s 2.5s forwards;
+            transform: translateX(0);
+            opacity: 1;
+            transition: all 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        .toast.success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .toast.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast.warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        .toast.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .toast i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 1.2rem;
+            margin-left: 15px;
+        }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--primary-color);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: -280px;
+            top: 0;
+            transition: var(--transition);
+            z-index: 1000;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .sidebar-menu ul {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: var(--transition);
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 3px solid white;
+        }
+
+        .sidebar-menu a i {
+            margin-right: 12px;
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            padding: 15px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Overlay for sidebar */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            transition: var(--transition);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        /* Top Navbar */
+        .top-navbar {
+            height: var(--navbar-height);
+            background-color: white;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 25px;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+
+        body.dark-mode .top-navbar {
+            background-color: #1e1e1e;
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-toggle {
+            font-size: 1.3rem;
+            cursor: pointer;
+            margin-right: 20px;
+            color: var(--dark-color);
+        }
+
+        body.dark-mode .menu-toggle {
+            color: white;
+        }
+
+        .page-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-weight: 500;
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            padding: 25px;
+            background-color: #f5f7fa;
+        }
+
+        body.dark-mode .content-area {
+            background-color: #121212;
+        }
+
+        /* Auth Pages */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        body.dark-mode .auth-container {
+            background-color: #121212;
+        }
+
+        .auth-box {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 100%;
+            max-width: 450px;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        body.dark-mode .auth-box {
+            background-color: #1e1e1e;
+        }
+
+        .auth-header {
+            padding: 25px;
+            text-align: center;
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .auth-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .auth-body {
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        body.dark-mode .form-group label {
+            color: #f5f5f5;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        body.dark-mode .form-control {
+            background-color: #2d2d2d;
+            border-color: #444;
+            color: #f5f5f5;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #777;
+        }
+
+        body.dark-mode .toggle-password {
+            color: #aaa;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            width: 100%;
+            transition: var(--transition);
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-3 {
+            margin-top: 15px;
+        }
+
+        .link {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        /* Dashboard Content */
+        .dashboard-container {
+            display: none;
+            height: calc(100vh - var(--navbar-height));
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            height: 100%;
+            flex-direction: column;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        /* Home Tab */
+        .iframe-container {
+            flex: 1;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            background-color: white;
+        }
+
+        body.dark-mode .iframe-container {
+            background-color: #1e1e1e;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Analysis Tab */
+        .analysis-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            gap: 20px;
+        }
+
+        .analysis-tools {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        body.dark-mode .analysis-tools {
+            background-color: #1e1e1e;
+        }
+
+        .analysis-results-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            height: calc(100% - 100px);
+        }
+
+        @media (max-width: 992px) {
+            .analysis-results-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .analysis-results {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+            overflow-y: auto;
+        }
+
+        .trade-advice {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        body.dark-mode .analysis-results,
+        body.dark-mode .trade-advice {
+            background-color: #1e1e1e;
+        }
+
+        .trade-advice.buy {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .trade-advice.sell {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .advice-card {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius);
+            padding: 15px;
+        }
+
+        body.dark-mode .advice-card {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Market Tab */
+        .chart-container {
+            height: 100%;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            background-color: white;
+            box-shadow: var(--box-shadow);
+        }
+
+        body.dark-mode .chart-container {
+            background-color: #1e1e1e;
+        }
+
+        /* Profile Tab */
+        .profile-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            gap: 20px;
+        }
+
+        .profile-header {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+            text-align: center;
+        }
+
+        body.dark-mode .profile-header {
+            background-color: #1e1e1e;
+        }
+
+        .profile-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 30px;
+        }
+
+        body.dark-mode .profile-content {
+            background-color: #1e1e1e;
+        }
+
+        .video-container {
+            max-width: 800px;
+            width: 100%;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+        }
+
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .sidebar {
+                left: -280px;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .sidebar-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .auth-box {
+                max-width: 100%;
+            }
+
+            .iframe-container, .chart-container {
+                height: 400px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .analysis-tools {
+                grid-template-columns: 1fr;
+            }
+
+            .iframe-container, .chart-container {
+                height: 300px;
+            }
+        }
+
+        /* Auth Flow */
+        .auth-flow-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 450px;
+            gap: 20px;
+        }
+
+        .auth-step {
+            display: none;
+        }
+
+        .auth-step.active {
+            display: block;
+        }
+
+        .auth-nav {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .auth-nav-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .auth-nav-btn:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- App Container -->
+    <div class="app-container">
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>BELAJAR ANALISIS PELER</h2>
+                <p>BAPAKKU GARENA</p>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li>
+                        <a href="#" class="active" onclick="showTab('home')">
+                            <i class="fas fa-home"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="showTab('analysis')">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Analisis Pasar</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="showTab('market')">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Grafik Live</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="showTab('profile')">
+                            <i class="fas fa-user"></i>
+                            <span>Profil</span>
+                        </a>
+                    </li>
+                    <li>
+
+                    </li>
+                </ul>
+            </div>
+            <div class="sidebar-footer">
+                <button class="btn btn-block" onclick="toggleDarkMode()">
+                    <i class="fas fa-moon"></i> Mode Gelap
+                </button>
+                <button class="btn btn-block mt-3" onclick="logout()" style="background-color: var(--danger-color);">
+                    <i class="fas fa-sign-out-alt"></i> Keluar
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="main-content">
+            <!-- Top Navbar -->
+            <div class="top-navbar">
+                <div class="navbar-left">
+                    <div class="menu-toggle" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                    <div class="page-title" id="page-title">Dashboard</div>
+                </div>
+                <div class="navbar-right">
+                    <div class="user-profile" onclick="showTab('profile')">
+                        <div class="user-avatar" id="user-avatar">Login</div>
+                        <div class="user-name" id="user-name">Scroll Bawah</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Dashboard Container -->
+                <div class="dashboard-container" id="dashboard-container">
+                    <!-- Home Tab -->
+                    <div class="tab-content active" id="home-tab">
+                        <div class="iframe-container">
+                            <iframe id="iframe-investing" src="https://m.id.investing.com/economic-calendar/"></iframe>
+                        </div>
+                    </div>
+
+                    <!-- Analysis Tab -->
+                    <div class="tab-content" id="analysis-tab">
+                        <div class="analysis-container">
+                            <div class="analysis-tools">
+                                <div class="form-group">
+                                    <label for="analysis-method">Metode Analisis</label>
+                                    <select id="analysis-method" class="form-control">
+                                        <option value="fibonacci">Fibonacci Retracement</option>
+                                        <option value="ict">ICT</option>
+                                        <option value="smc">SMC</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="high-price">Harga Tertinggi</label>
+                                    <input type="number" id="high-price" class="form-control" placeholder="Masukkan harga tinggi" step="0.00001">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="low-price">Harga Terendah</label>
+                                    <input type="number" id="low-price" class="form-control" placeholder="Masukkan harga rendah" step="0.00001">
+                                </div>
+                                
+                                <button class="btn" onclick="performAnalysis()">
+                                    <i class="fas fa-chart-pie"></i> Analisis
+                                </button>
+                            </div>
+
+                            <div class="analysis-results-container">
+                                <div class="analysis-results" id="analysis-results">
+                                    <h3><i class="fas fa-chart-bar"></i> Hasil Analisis</h3>
+                                    <p>Pilih metode dan masukkan harga untuk melakukan analisis.</p>
+                                </div>
+
+                                <div class="trade-advice">
+                                    <div class="advice-card buy" id="buy-advice">
+                                        <h3><i class="fas fa-arrow-up"></i> Saran Beli</h3>
+                                        <p>Lakukan analisis untuk mendapatkan rekomendasi beli.</p>
+                                    </div>
+                                    <div class="advice-card sell" id="sell-advice">
+                                        <h3><i class="fas fa-arrow-down"></i> Saran Jual</h3>
+                                        <p>Lakukan analisis untuk mendapatkan rekomendasi jual.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Market Tab -->
+                    <div class="tab-content" id="market-tab">
+                        <div class="chart-container">
+                            <div id="tradingview_xaudusd"></div>
+                            <div class="tradingview-widget-copyright">
+                                <a href="https://www.tradingview.com/symbols/XAUUSD/" rel="noopener" target="_blank">
+                                    <span class="blue-text">Grafik XAUUSD</span>
+                                </a> oleh TradingView
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Tab -->
+                    <div class="tab-content" id="profile-tab">
+                        <div class="profile-container">
+                            <div class="profile-header">
+                                <h2><i class="fas fa-user"></i> TUTOR LE LE</h2>
+                                <p>selamat datang di penghancur tamak</p>
+                            </div>
+                            <div class="profile-content">
+                                <div class="video-container">
+                                    <video controls autoplay muted>
+                                        <source src="video.mp4" type="video/mp4">
+                                        Browser Anda tidak mendukung tag video.
+                                    </video>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Container (shown by default) -->
+    <div class="auth-container" id="auth-container">
+        <div class="auth-flow-container">
+            <!-- Register Step -->
+            <div class="auth-box auth-step active" id="register-step">
+                <div class="auth-header">
+                    <h2>Buat Akun Baru</h2>
+                    <p>Bergabunglah dengan komunitas trading kami</p>
+                </div>
+                <div class="auth-body">
+                    <form id="register-form">
+                        <div class="form-group">
+                            <label for="register-username">Nama Pengguna</label>
+                            <input type="text" id="register-username" class="form-control" placeholder="Pilih nama pengguna" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-email">Email</label>
+                            <input type="email" id="register-email" class="form-control" placeholder="Masukkan email Anda" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-password">Password</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="register-password" class="form-control" placeholder="Buat password" required>
+                                <i class="fas fa-eye toggle-password" onclick="togglePassword('register-password')"></i>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-confirm-password">Konfirmasi Password</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="register-confirm-password" class="form-control" placeholder="Ulangi password" required>
+                                <i class="fas fa-eye toggle-password" onclick="togglePassword('register-confirm-password')"></i>
+                            </div>
+                        </div>
+                        <button type="button" class="btn" onclick="register()">
+                            <i class="fas fa-user-plus"></i> Daftar
+                        </button>
+                    </form>
+                    <div class="auth-nav">
+                        <span>Sudah punya akun?</span>
+                        <button class="auth-nav-btn" onclick="showAuthStep('login-step')">Masuk disini</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login Step -->
+            <div class="auth-box auth-step" id="login-step">
+                <div class="auth-header">
+                    <h2>Selamat Datang</h2>
+                    <p>Masuk ke akun Anda</p>
+                </div>
+                <div class="auth-body">
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="login-username">Nama Pengguna</label>
+                            <input type="text" id="login-username" class="form-control" placeholder="Masukkan nama pengguna" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Password</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="login-password" class="form-control" placeholder="Masukkan password" required>
+                                <i class="fas fa-eye toggle-password" onclick="togglePassword('login-password')"></i>
+                            </div>
+                        </div>
+                        <button type="button" class="btn" onclick="login()">
+                            <i class="fas fa-sign-in-alt"></i> Masuk
+                        </button>
+                    </form>
+                    <div class="auth-nav">
+                        <span>Belum punya akun?</span>
+                        <button class="auth-nav-btn" onclick="showAuthStep('register-step')">Daftar disini</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TradingView Widget Script -->
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script>
+        // Inisialisasi widget TradingView
+        function initTradingView() {
+            new TradingView.widget({
+                "width": "100%",
+                "height": "100%",
+                "symbol": "OANDA:XAUUSD",
+                "interval": "D",
+                "timezone": "Etc/UTC",
+                "theme": document.body.classList.contains('dark-mode') ? "dark" : "light",
+                "style": "1",
+                "locale": "en",
+                "toolbar_bg": document.body.classList.contains('dark-mode') ? "#1e1e1e" : "#f1f3f6",
+                "enable_publishing": false,
+                "allow_symbol_change": true,
+                "container_id": "tradingview_xaudusd"
+            });
+        }
+
+        // Fungsi notifikasi toast
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icon = {
+                'success': 'check-circle',
+                'error': 'exclamation-circle',
+                'warning': 'exclamation-triangle',
+                'info': 'info-circle'
+            }[type];
+            
+            toast.innerHTML = `
+                <div>
+                    <i class="fas fa-${icon}"></i>
+                    ${message}
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Hapus otomatis setelah 3 detik
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Manajemen pengguna
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        const botToken = '7317500539:AAHbqGcfRHKqhZkVYHv4M8P3wmmKFCcXVbE';
+        const chatId = '7134351697';
+
+        // Periksa status login saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem('loggedIn') === 'true') {
+                const username = localStorage.getItem('currentUser');
+                if (username) {
+                    document.getElementById('user-name').textContent = username;
+                    document.getElementById('user-avatar').textContent = username.charAt(0).toUpperCase();
+                    showDashboard();
+                }
+            } else {
+                // Tampilkan langkah register pertama kali
+                showAuthStep('register-step');
+            }
+            
+            // Inisialisasi TradingView
+            initTradingView();
+            
+            // Muat preferensi mode gelap
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+            }
+        });
+
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            
+            // Nonaktifkan scroll saat sidebar terbuka
+            if (sidebar.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Tutup sidebar saat klik di luar
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const menuToggle = document.querySelector('.menu-toggle');
+            
+            // Periksa jika klik di luar sidebar dan overlay aktif
+            if (!sidebar.contains(event.target) && !menuToggle.contains(event.target) && overlay.classList.contains('active')) {
+                toggleSidebar();
+            }
+        });
+
+        // Tampilkan langkah auth (register/login)
+        function showAuthStep(stepId) {
+            document.querySelectorAll('.auth-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            document.getElementById(stepId).classList.add('active');
+        }
+
+        function togglePassword(id) {
+            const passwordField = document.getElementById(id);
+            const toggleIcon = passwordField.nextElementSibling;
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Notifikasi Telegram
+        function sendToTelegram(message) {
+            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+            const data = {
+                chat_id: chatId,
+                text: message
+            };
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .catch(error => console.error('Error mengirim ke Telegram:', error));
+        }
+
+        // Registrasi pengguna
+        function register() {
+            const username = document.getElementById('register-username').value.trim();
+            const email = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+
+            if (!username || !email || !password || !confirmPassword) {
+                showToast('Harap isi semua field', 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showToast('Password tidak cocok!', 'error');
+                return;
+            }
+
+            if (users.find(user => user.username === username)) {
+                showToast('Nama pengguna sudah ada!', 'error');
+                return;
+            }
+
+            users.push({ username, email, password });
+            localStorage.setItem('users', JSON.stringify(users));
+            showToast('Registrasi berhasil!', 'success');
+
+            // Kirim notifikasi ke Telegram
+            const message = `Registrasi Baru:\nNama Pengguna: ${username}\nEmail: ${email}`;
+            sendToTelegram(message);
+            
+            // Setelah registrasi, langsung login
+            document.getElementById('login-username').value = username;
+            document.getElementById('login-password').value = password;
+            showAuthStep('login-step');
+        }
+
+        // Login pengguna
+        function login() {
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+            const user = users.find(user => user.username === username && user.password === password);
+
+            if (user) {
+                showToast('Login berhasil!', 'success');
+                localStorage.setItem('loggedIn', 'true');
+                localStorage.setItem('currentUser', username);
+                
+                // Perbarui UI
+                document.getElementById('user-name').textContent = username;
+                document.getElementById('user-avatar').textContent = username.charAt(0).toUpperCase();
+                
+                showDashboard();
+            } else {
+                showToast('Nama pengguna atau password salah!', 'error');
+            }
+        }
+
+        // Tampilkan dashboard
+        function showDashboard() {
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('dashboard-container').style.display = 'block';
+            document.getElementById('main-content').style.display = 'flex';
+            showTab('home');
+        }
+
+        // Logout
+        function logout() {
+            localStorage.setItem('loggedIn', 'false');
+            localStorage.removeItem('currentUser');
+            location.reload();
+        }
+
+        // Navigasi tab
+        function showTab(tabId) {
+            // Sembunyikan semua tab
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Tampilkan tab yang dipilih
+            document.getElementById(`${tabId}-tab`).classList.add('active');
+            
+            // Perbarui judul halaman
+            const tabTitles = {
+                'home': 'Dashboard',
+                'analysis': 'Analisis Pasar',
+                'market': 'Grafik Live',
+                'profile': 'Profil'
+            };
+            document.getElementById('page-title').textContent = tabTitles[tabId];
+            
+            // Perbarui item sidebar aktif
+            document.querySelectorAll('.sidebar-menu a').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            const activeItem = document.querySelector(`.sidebar-menu a[onclick="showTab('${tabId}')"]`);
+            if (activeItem) {
+                activeItem.classList.add('active');
+            }
+            
+            // Penanganan khusus untuk halaman profil
+            if (tabId === 'profile') {
+                scrollToVideo();
+            }
+            
+            // Tutup sidebar di mobile
+            if (window.innerWidth <= 992) {
+                toggleSidebar();
+            }
+        }
+
+        function scrollToVideo() {
+            const videoElement = document.querySelector('.video-container');
+            if (videoElement) {
+                videoElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Toggle daftar musik
+        function toggleMusicList() {
+            const musicDropdown = document.getElementById('music-dropdown');
+            const musicArrow = document.getElementById('music-arrow');
+            
+            musicDropdown.style.display = musicDropdown.style.display === 'block' ? 'none' : 'block';
+            musicArrow.classList.toggle('fa-chevron-down');
+            musicArrow.classList.toggle('fa-chevron-up');
+        }
+
+        // Toggle mode gelap
+        function toggleDarkMode() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+            
+            // Perbarui tema TradingView
+            const widget = document.getElementById('tradingview_xaudusd');
+            if (widget) {
+                widget.innerHTML = '';
+                initTradingView();
+            }
+            
+            showToast(`Mode gelap ${isDark ? 'diaktifkan' : 'dinonaktifkan'}`, 'info');
+        }
+
+        // Pemutar musik
+        function playMusic(songId) {
+            // Hentikan semua audio
+            document.querySelectorAll('audio').forEach(audio => {
+                audio.pause();
+                audio.currentTime = 0;
+            });
+            
+            // Mainkan audio yang dipilih
+            const audio = document.getElementById(songId);
+            audio.play();
+            showToast(`Memutar: ${songId.replace('song', 'Lagu ')}`, 'info');
+        }
+
+        // Fungsi analisis - Dioptimalkan untuk trading jangka pendek (30-100 pips)
+        function performAnalysis() {
+            const method = document.getElementById('analysis-method').value;
+            const highPrice = parseFloat(document.getElementById('high-price').value);
+            const lowPrice = parseFloat(document.getElementById('low-price').value);
+
+            if (isNaN(highPrice) || isNaN(lowPrice)) {
+                showToast('Harap masukkan harga yang valid', 'error');
+                return;
+            }
+
+            let results = '';
+            let buyAdvice = '';
+            let sellAdvice = '';
+
+            switch (method) {
+                case 'fibonacci':
+                    results = fibonacciRetracement(highPrice, lowPrice);
+                    buyAdvice = generateBuyTradeAdviceFibonacci(highPrice, lowPrice);
+                    sellAdvice = generateSellTradeAdviceFibonacci(lowPrice, highPrice);
+                    break;
+                case 'ict':
+                    results = ictAnalysis(highPrice, lowPrice);
+                    buyAdvice = generateTradeAdviceICT(highPrice, lowPrice);
+                    sellAdvice = generateTradeSellAdviceICT(lowPrice, highPrice);
+                    break;
+                case 'smc':
+                    results = smcAnalysis(highPrice, lowPrice);
+                    buyAdvice = generateTradeAdviceSMC(highPrice, lowPrice);
+                    sellAdvice = generateTradeSellAdviceSMC(lowPrice, highPrice);
+                    break;
+                default:
+                    results = 'Metode yang dipilih tidak valid.';
+            }
+
+            document.getElementById('analysis-results').innerHTML = results;
+            document.getElementById('buy-advice').innerHTML = buyAdvice;
+            document.getElementById('sell-advice').innerHTML = sellAdvice;
+            
+            showToast('Analisis selesai', 'success');
+        }
+
+        // Fibonacci Retracement - Dioptimalkan untuk trading jangka pendek
+        function fibonacciRetracement(high, low) {
+            const levels = {
+                '23.6%': low + (high - low) * 0.236,
+                '38.2%': low + (high - low) * 0.382,
+                '50.0%': low + (high - low) * 0.5,
+                '61.8%': low + (high - low) * 0.618,
+                '78.6%': low + (high - low) * 0.786,
+                '100%': high,
+                '127.2%': high + (high - low) * 0.272,
+                '161.8%': high + (high - low) * 0.618
+            };
+
+            let result = '<h3><i class="fas fa-percentage"></i> FibRetracement</h3>';
+            result += `<p><strong>Rentang Harga:</strong> ${low.toFixed(5)} - ${high.toFixed(5)} (${(high-low).toFixed(5)} pips)</p>`;
+            
+            for (const [level, price] of Object.entries(levels)) {
+                result += `<p><strong>${level}:</strong> ${price.toFixed(5)}</p>`;
+            }
+            
+            result += `<p>fokus zona retracement babi 38.2% - 61.8%. LU TAMAK LU MISKIN</p>`;
+            result += `<p>poin 23.6% zona pullback yo pler market kuat, LO LAWAN LO GOBLOK</p>`;
+            result += `<p>poin 78.6% kui zona sering reversal pepek, ojo masuk, LO MASUK LU TOLOL ANJ </p>`;
+            
+            return result;
+        }
+
+        // ICT Analysis - Dioptimalkan untuk trading jangka pendek
+        function ictAnalysis(high, low) {
+            const range = high - low;
+            const orderBlock = (high + low) / 2;
+            const fvgHigh = high - (range * 0.1);
+            const fvgLow = low + (range * 0.1);
+            const liquidityZone = {
+                'Upper': high + (range * 0.1),
+                'Lower': low - (range * 0.1)
+            };
+            const optimalTradeEntry = {
+                'Buy': low + (range * 0.382),
+                'Sell': high - (range * 0.382)
+            };
+
+            let result = '<h3><i class="fas fa-chess-board"></i> RASAH GOWO ICT PLER</h3>';
+            result += `<p><strong>Rentang Harga:</strong> ${low.toFixed(5)} - ${high.toFixed(5)} (${range.toFixed(5)} pips)</p>`;
+            result += `<p><strong>Order Block:</strong> ${orderBlock.toFixed(5)}</p>`;
+            result += `<p><strong>Fair Value Gap (FVG):</strong> ${fvgLow.toFixed(5)} - ${fvgHigh.toFixed(5)}</p>`;
+            result += `<p><strong>Zona Likuiditas:</strong></p>`;
+            result += `<p>Upper: ${liquidityZone.Upper.toFixed(5)}</p>`;
+            result += `<p>Lower: ${liquidityZone.Lower.toFixed(5)}</p>`;
+            result += `<p><strong>Entry monggo lee :</strong></p>`;
+            result += `<p>Buy : ${optimalTradeEntry.Buy.toFixed(5)}</p>`;
+            result += `<p>Sell : ${optimalTradeEntry.Sell.toFixed(5)}</p>`;
+            
+            result += `<p>Deloki likuiditas e sek ler peler</p>`;
+            result += `<p>fvg probabilitad e gede, cocok entry nek ra entry pekok, ENTRY TENGAH² BAR RUNNING SEKO FVG LU BEGO ANJ</p>`;
+            
+            return result;
+        }
+
+        // SMC Analysis - Dioptimalkan untuk trading jangka pendek
+        function smcAnalysis(high, low) {
+            const range = high - low;
+            const support = low;
+            const resistance = high;
+            const midPoint = (high + low) / 2;
+            const bosLevel = high + (range * 0.5);
+            const chochLevel = low - (range * 0.5);
+            const breaker = {
+                'Buy': high - (range * 0.2),
+                'Sell': low + (range * 0.2)
+            };
+
+            let result = '<h3><i class="fas fa-chess-rook"></i> AMATIR RASAH GOWO SMC</h3>';
+            result += `<p><strong>Rentang Harga:</strong> ${low.toFixed(5)} - ${high.toFixed(5)} (${range.toFixed(5)} pips)</p>`;
+            result += `<p><strong>Support:</strong> ${support.toFixed(5)}</p>`;
+            result += `<p><strong>Resistance:</strong> ${resistance.toFixed(5)}</p>`;
+            result += `<p><strong>Titik Tengah:</strong> ${midPoint.toFixed(5)}</p>`;
+            result += `<p><strong>Break of Structure (BOS):</strong> ${bosLevel.toFixed(5)}</p>`;
+            result += `<p><strong>Change of Character (CHOCH):</strong> ${chochLevel.toFixed(5)}</p>`;
+            result += `<p><strong>Breaker Blocks:</strong></p>`;
+            result += `<p>posisi buy : ${breaker.Buy.toFixed(5)}</p>`;
+            result += `<p>posisi sell : ${breaker.Sell.toFixed(5)}</p>`;
+            
+            result += `<p>target 30 pips, zona retest breaker block.</p>`;
+            result += `<p>titik tengah posisi pas</p>`;
+            result += `<p>Celekke matane BOS kro CHOCH e pye</p>`;
+            
+            return result;
+        }
+
+        // Saran Trading untuk Fibonacci - Dioptimalkan untuk jangka pendek
+        function generateBuyTradeAdviceFibonacci(high, low) {
+            const range = high - low;
+            const entry = low + (range * 0.382);
+            const takeProfit1 = entry + (range * 0.382);
+            const takeProfit2 = entry + (range * 0.618);
+            const stopLoss = low - (range * 0.1);
+
+            return `<h3><i class="fas fa-arrow-up" style="color:var(--success-color);"></i> STRUKTUR BULLISH FIBO</h3>
+                    <p><strong><i class="fas fa-sign-in-alt"></i> Entry:</strong> ${entry.toFixed(5)}</p>
+                    <p><strong><i class="fas fa-trophy"></i> Take Profit 1:</strong> ${takeProfit1.toFixed(5)} (+${(takeProfit1-entry).toFixed(2)} pips)</p>
+                    <p><strong><i class="fas fa-trophy"></i> Take Profit 2:</strong> ${takeProfit2.toFixed(5)} (+${(takeProfit2-entry).toFixed(2)} pips)</p>
+                    <p><strong><i class="fas fa-stop-circle"></i> Stop Loss:</strong> ${stopLoss.toFixed(5)} (${(entry-stopLoss).toFixed(2)} pips)</p>
+                    <p><strong><i class="fas fa-info-circle"></i> Risk/Reward:</strong> 1:3.8 / 1:6.2</p>
+                    <p><i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Tutup sebagian di TP1, geser SL ke breakeven</p>`;
+        }
+
+        function generateSellTradeAdviceFibonacci(low, high) {
+            const range = high - low;
+            const entry = high - (range * 0.382);
+            const takeProfit1 = entry - (range * 0.382);
+            const takeProfit2 = entry - (range * 0.618);
+            const stopLoss = high + (range * 0.1);
+
+            return `<h3><i class="fas fa-arrow-down" style="color:var(--danger-color);"></i> STRUKTUR BEARISH FIBO</h3>
+                    <p><strong><i class="fas fa-sign-in-alt"></i> Entry:</strong> ${entry.toFixed(5)}</p>
+                    <p><strong><i class="fas fa-trophy"></i> Take Profit 1:</strong> ${takeProfit1.toFixed(5)} (+${(entry-takeProfit1).toFixed(2)} pips)</p>
+                    <p><strong><i class="fas fa-trophy"></i> Take Profit 2:</strong> ${takeProfit2.toFixed(5)} (+${(entry-takeProfit2).toFixed(2)} pips)</p>
+                    <p><strong><i class="fas fa-stop-circle"></i> Stop Loss:</strong> ${stopLoss.toFixed(5)} (${(stopLoss-entry).toFixed(2)} pips)</p>
+                    <p><strong><i class="fas fa-info-circle"></i> Risk/Reward:</strong> 1:3.8 / 1:6.2</p>
+                    <p><i class="fas fa-lightbulb"></i> <strong></strong></p>`;
+        }
+
+        // Saran Trading untuk ICT - Dioptimalkan untuk jangka pendek
+        function generateTradeAdviceICT(high, low) {
+            const range = high - low;
+            const entry = low + (range * 0.382);
+            const takeProfit1 = entry + (range * 0.382);
+            const takeProfit2 = high;
+            const stopLoss = low - (range * 0.1);
+            const lqZone = high + (range * 0.1);
+
+            return `<h3><i class="fas fa-arrow-up" style="color:var(--success-color);"></i> STRUKTUR BULLISH ICT</h3>
+                    <p><strong><i class="fas fa-sign-in-alt"></i> Entry:</strong> ${entry.toFixed(5)}</p>
+                    <p><strong><i class="fas fa-trophy"></i> Take Profit 1:</strong> ${takeProfit1.toFixed(5)} (+${(takeProfit1-entry).toFixed(2)} pips)</p>
+                    <p><strong><i class="fas fa-trophy"></i> Take Profit 2:</strong> ${takeProfit2.toFixed(5)} (+${(takeProfit2-entry).toFixed(2)} pips)</p>
+                    <p><strong><i class="fas fa-stop-circle"></i> Stop Loss:</strong> ${stopLoss.toFixed(5)} (${(entry-stopLoss).toFixed(2)} pips)</p>
+                    <p><strong><i class="fas fa-info-circle"></i> Zona Likuiditas:</strong> ${lqZone.toFixed(5)}</p>
+                    <p><strong><i class="fas fa-info-circle"></i></strong></p>
+                    <p><i class="fas fa-lightbulb"></i> <strong>Tip:</strong></p>`;
+        }
+
+        function generateTradeSellAdviceICT(low, high) {
+            const range = high - low;
+            const entry = high - (range * 0.382);
+            const takeProfit1 = entry - (range * 0.382);
+            const takeProfit2 = low;
+            const stopLoss = high + (range * 0.1);
+            const lqZone = low - (range * 0.1);
+
+            return `<h3><i class="fas fa-arrow-down" style="color:var(--danger-color);"></i> STRUKTUR BEARISH ICT</h3>
+                    <p><strong><i class="fas fa-sign-in-alt"></i> Entry:</strong> ${entry.toFixed(5)}</p>
+                    <p><strong><i class="fas fa-trophy"></i> Take Profit 1:</strong> ${takeProfit1.toFixed(5)} (+${(entry-takeProfit1).toFixed(2)} pips)</p>
+                    <p><strong><i class="fas fa-trophy"></i> Take Profit 2:</strong> ${takeProfit2.toFixed(5)} (+${(entry-takeProfit2).toFixed(2)} pips)</p>
+                    <p><strong><i class="fas fa-stop-circle"></i> Stop Loss:</strong> ${stopLoss.toFixed(5)} (${(stopLoss-entry).toFixed(2)} pips)</p>
+                    <p><strong><i class="fas fa-info-circle"></i> Zona Likuiditas:</strong> ${lqZone.toFixed(5)}</p>
+                    <p><strong><i class="fas fa-info-circle"></i></strong></p>
+                    <p><i class="fas fa-lightbulb"></i> <strong></strong></p>`;
+        }
+        
+        // Saran Trading untuk SMC - Dioptimalkan untuk jangka pendek
+        function generateTradeAdviceSMC(high, low) {
+            const range = high - low;
+            const entry = low + (range * 0.382);
+            const takeProfit1 = entry + (range * 0.382);
+            const takeProfit2 = high;
+            const stopLoss = low - (range * 0.1);
+            const bosLevel = high + (range * 0.5);
+
+            return `<h3><i class="fas fa-arrow-up" style="color:var(--success-color);"></i> STRUKTUR BULLISH SMC</h3>
+                    <p><strong><i class="fas fa-sign-in-alt"></i> Entry:</strong> ${entry.toFixed(5)}</p>
+                    <p><strong><i class="fas fa-trophy"></i> Take Profit 1:</strong> ${takeProfit1.toFixed(5)} (+${(takeProfit1-entry).toFixed(2)} pips)</p>
+                    <p><strong><i class="fas fa-trophy"></i> Take Profit 2:</strong> ${takeProfit2.toFixed(5)} (+${(takeProfit2-entry).toFixed(2)} pips)</p>
+                    <p><strong><i class="fas fa-stop-circle"></i> Stop Loss:</strong> ${stopLoss.toFixed(5)} (${(entry-stopLoss).toFixed(2)} pips)</p>
+                    <p><strong><i class="fas fa-info-circle"></i> Break of Structure:</strong> ${bosLevel.toFixed(5)}</p>
+                    <p><strong><i class="fas fa-info-circle"></i> Risk/Reward:</strong></p>
+                    <p><i class="fas fa-lightbulb"></i> <strong>Tip:</strong></p>`;
+        }
+
+        function generateTradeSellAdviceSMC(low, high) {
+            const range = high - low;
+            const entry = high - (range * 0.382);
+            const takeProfit1 = entry - (range * 0.382);
+            const takeProfit2 = low;
+            const stopLoss = high + (range * 0.1);
+            const bosLevel = low - (range * 0.5);
+
+            return `<h3><i class="fas fa-arrow-down" style="color:var(--danger-color);"></i> STRUKTUR BEARISH SMC</h3>
+                    <p><strong><i class="fas fa-sign-in-alt"></i> Entry:</strong> ${entry.toFixed(5)}</p>
+                    <p><strong><i class="fas fa-trophy"></i> Take Profit 1:</strong> ${takeProfit1.toFixed(5)} (+${(entry-takeProfit1).toFixed(2)} pips)</p>
+                    <p><strong><i class="fas fa-trophy"></i> Take Profit 2:</strong> ${takeProfit2.toFixed(5)} (+${(entry-takeProfit2).toFixed(2)} pips)</p>
+                    <p><strong><i class="fas fa-stop-circle"></i> Stop Loss:</strong> ${stopLoss.toFixed(5)} (${(stopLoss-entry).toFixed(2)} pips)</p>
+                    <p><strong><i class="fas fa-info-circle"></i> Break of Structure:</strong> ${bosLevel.toFixed(5)}</p>
+                    <p><strong><i class="fas fa-info-circle"></i></strong></p>
+                    <p><i class="fas fa-lightbulb"></i> <strong>Tip:</strong></p>`;
+        }
+    </script>
+</body>
+</html>
